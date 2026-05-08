@@ -4,21 +4,33 @@ using UnityEngine.EventSystems;
 
 public class InventorySlot : MonoBehaviour, IPointerClickHandler
 {
-    public Image itemIcon;
-    public Text countText;
+    [Header("UI Компоненты")]
+    public Image itemIcon;      
+    public Text countText;      
+                                
 
-    public Item currentItem;
-    public int itemCount;
+    [Header("Данные слота")]
+    public Item currentItem;    
+    public int itemCount;       
 
     private Inventory inventory;
+    private InventoryActions actions;
+    private Image slotBackground; 
 
     private void Awake()
     {
-        inventory = FindObjectOfType<Inventory>();
+        inventory = FindFirstObjectByType<Inventory>();
+        actions = FindFirstObjectByType<InventoryActions>();
+        slotBackground = GetComponent<Image>();
 
-        // Находим дочерние объекты по имени
-        itemIcon = transform.Find("ItemIcon").GetComponent<Image>();
-        countText = transform.Find("ItemCount").GetComponent<Text>();
+        Transform iconTransform = transform.Find("ItemIcon");
+        Transform countTransform = transform.Find("ItemCount");
+
+        if (iconTransform != null)
+            itemIcon = iconTransform.GetComponent<Image>();
+
+        if (countTransform != null)
+            countText = countTransform.GetComponent<Text>();
     }
 
     public void SetItem(Item item, int count)
@@ -26,7 +38,7 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler
         currentItem = item;
         itemCount = count;
 
-        if (item != null)
+        if (item != null && item.icon != null)
         {
             itemIcon.sprite = item.icon;
             itemIcon.enabled = true;
@@ -50,16 +62,40 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (currentItem != null)
+        if (currentItem == null) return;
+
+        if (eventData.button == PointerEventData.InputButton.Left)
         {
-            if (eventData.button == PointerEventData.InputButton.Left)
-            {
-                inventory.OnItemUse(currentItem, this);
-            }
-            else if (eventData.button == PointerEventData.InputButton.Right)
-            {
-                inventory.SelectForCombine(currentItem, this);
-            }
+            if (actions != null)
+                actions.SelectItem(currentItem, this);
+            else
+                Debug.LogWarning("InventoryActions не найден!");
+        }
+        else if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            if (inventory != null)
+                inventory.QuickUseItem(currentItem, this);
+        }
+    }
+
+    public void Highlight(bool highlight)
+    {
+        if (slotBackground != null)
+        {
+            slotBackground.color = highlight ? new Color(1f, 0.9f, 0.3f, 1f) : new Color(0.8f, 0.8f, 0.8f, 1f);
+        }
+    }
+
+    public void DecreaseCount(int amount = 1)
+    {
+        itemCount -= amount;
+        if (itemCount <= 0)
+        {
+            ClearSlot();
+        }
+        else
+        {
+            SetItem(currentItem, itemCount);
         }
     }
 }
