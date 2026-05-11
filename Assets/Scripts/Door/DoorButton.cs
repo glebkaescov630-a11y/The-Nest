@@ -3,66 +3,45 @@ using UnityEngine.SceneManagement;
 
 public class DoorButton : MonoBehaviour
 {
-    [Header("Настройки двери")]
-    [SerializeField] private string nextSceneName = "LeftRoom";
-    [SerializeField] private float interactionRange = 2f;
-
-    [Header("Настройки движения")]
+    [SerializeField] private string nextSceneName = "RightRoom";
+    [SerializeField] private Transform walkPoint;
     [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float stoppingDistance = 1f;
+    [SerializeField] private float stoppingDistance = 0.1f;
 
     private Transform player;
-    private bool isMovingToButton = false;
-    private Camera mainCamera;
+    private bool isMoving = false;
 
-    private void Start()
+    void Start()
     {
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null) player = playerObj.transform;
-        else Debug.LogError("Player not found!");
-
-        mainCamera = Camera.main;
+        player = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
-    private void Update()
+    void Update()
     {
-        if (player == null || mainCamera == null) return;
-
         if (Input.GetMouseButtonDown(0))
         {
-            Vector2 mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
 
             if (hit.collider != null && hit.collider.gameObject == gameObject)
             {
-                TryInteract();
+                isMoving = true;
             }
         }
 
-        if (isMovingToButton)
+        if (isMoving)
         {
-            Vector2 direction = (transform.position - player.position).normalized;
-            player.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+            player.position = Vector2.MoveTowards(
+                player.position,
+                walkPoint.position,
+                moveSpeed * Time.deltaTime
+            );
 
-            if (Vector2.Distance(transform.position, player.position) <= stoppingDistance)
+            if (Vector2.Distance(player.position, walkPoint.position) <= stoppingDistance)
             {
-                isMovingToButton = false;
+                isMoving = false;
                 SceneManager.LoadScene(nextSceneName);
             }
-        }
-    }
-
-    private void TryInteract()
-    {
-        float distance = Vector2.Distance(transform.position, player.position);
-
-        if (distance <= interactionRange)
-        {
-            SceneManager.LoadScene(nextSceneName);
-        }
-        else
-        {
-            isMovingToButton = true;
         }
     }
 }

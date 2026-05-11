@@ -156,6 +156,7 @@ MonoBehaviour:
   slotsParent: {fileID: 1266577141}
   slotPrefab: {fileID: 3874989681003113412, guid: 284828826b229954a920e1be09090c6f, type: 3}
   inventorySize: 10
+  actions: {fileID: 0}
 --- !u!114 &60182808
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -745,6 +746,37 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.24768, y: 1.11788, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &565424791
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 565424792}
+  m_Layer: 0
+  m_Name: DOOR
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &565424792
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 565424791}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -6, y: -3.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1543,7 +1575,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoorButton
   nextSceneName: SampleScene
-  interactionRange: 2
+  walkPoint: {fileID: 565424792}
   moveSpeed: 5
   stoppingDistance: 1
 --- !u!61 &1959478399
@@ -1624,3 +1656,4 @@ SceneRoots:
   - {fileID: 1897283319}
   - {fileID: 346278360}
   - {fileID: 753526923}
+  - {fileID: 565424792}
