@@ -4,25 +4,29 @@ using UnityEngine.UI;
 public class Inventory : MonoBehaviour
 {
     [Header("UI Элементы")]
-    public GameObject inventoryWindow;  // Окно инвентаря
-    public Button bagButton;            // Кнопка-сумка
-    public Transform slotsParent;       // Родительский объект для слотов (ItemGrid)
-    public GameObject slotPrefab;       // Префаб слота
+    public GameObject inventoryWindow;
+    public Button bagButton;
+    public Transform slotsParent;
+    public GameObject slotPrefab;
 
     [Header("Настройки")]
-    public int inventorySize = 16;      // Количество слотов (4x4 = 16)
+    public int inventorySize = 16;
 
     [Header("Компоненты")]
-    public InventoryActions actions;    // Ссылка на скрипт действий
+    public InventoryActions actions;
 
     private InventorySlot[] slots;
-
-    // Событие для оповещения о закрытии инвентаря
     public System.Action OnInventoryClosed;
+
+    // ДОБАВЛЕНО: для сохранения
+    private InventoryPersistence persistence;
+    private bool isLoading = false;
 
     void Start()
     {
-        // Находим InventoryActions, если не назначен
+        // ДОБАВЛЕНО: находим менеджер сохранения
+        persistence = InventoryPersistence.Instance;
+
         if (actions == null)
             actions = GetComponent<InventoryActions>();
 
@@ -41,16 +45,32 @@ public class Inventory : MonoBehaviour
             Debug.LogError("slotsParent или slotPrefab не назначены в Inventory!");
         }
 
-        // Назначаем кнопку сумки
         if (bagButton != null)
             bagButton.onClick.AddListener(ToggleInventory);
 
-        // Инвентарь скрыт по умолчанию
         if (inventoryWindow != null)
             inventoryWindow.SetActive(false);
 
-        // Добавляем тестовые предметы (закомментировано, раскомментируйте для теста)
-        // Invoke(nameof(AddTestItems), 0.5f);
+        // ДОБАВЛЕНО: загружаем сохранённые предметы
+        LoadInventoryFromSave();
+    }
+
+    // ДОБАВЛЕНО: загрузка инвентаря из сохранения
+    private void LoadInventoryFromSave()
+    {
+        if (persistence != null)
+        {
+            persistence.LoadInventory(this);
+        }
+    }
+
+    // ДОБАВЛЕНО: сохранение инвентаря
+    private void SaveInventoryData()
+    {
+        if (persistence != null && !isLoading)
+        {
+            persistence.SaveInventory(slots);
+        }
     }
 
     void ToggleInventory()
@@ -60,9 +80,14 @@ public class Inventory : MonoBehaviour
             bool isOpen = !inventoryWindow.activeSelf;
             inventoryWindow.SetActive(isOpen);
 
+            if (actions != null)
+            {
+                if (isOpen)
+                    actions.CancelAllModes();
+            }
+
             if (!isOpen)
             {
-                // Выходим из режимов при закрытии
                 if (actions != null)
                     actions.CancelAllModes();
                 OnInventoryClosed?.Invoke();
@@ -70,49 +95,65 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    // Добавление тестовых предметов (для отладки)
-    void AddTestItems()
-    {
-        // Пример: создайте предметы через Assets/Create/Inventory/Item
-        // Item testItem = Resources.Load<Item>("Items/TestItem");
-        // if (testItem != null) AddItem(testItem, 3);
-    }
-
-    // Добавление предмета в инвентарь
+    // ИЗМЕНЁНО: добавлено сохранение
     public bool AddItem(Item item, int amount = 1)
     {
         if (item == null)
         {
-            Debug.LogWarning("Попытка добавить null предмет!");
+            Debug.LogWarning("item = null!");
             return false;
         }
 
-        // Сначала ищем стак такого же предмета
+        Debug.Log($"Добавляем: {item.itemName}, количество: {amount}");
+
+        if (slots == null)
+        {
+            Debug.LogError("slots = null! Слоты не созданы!");
+            return false;
+        }
+
+        // Поиск существующего стака
         for (int i = 0; i < slots.Length; i++)
         {
-            if (slots[i] != null && slots[i].currentItem == item && slots[i].itemCount < 99)
+            if (slots[i] == null)
+            {
+                Debug.LogWarning($"Слот {i} = null!");
+                continue;
+            }
+
+            if (slots[i].currentItem == item && slots[i].itemCount < 99)
             {
                 slots[i].itemCount += amount;
                 slots[i].SetItem(item, slots[i].itemCount);
+                Debug.Log($"Добавлено в слот {i}, теперь {slots[i].itemCount}");
+                SaveInventoryData(); // ДОБАВЛЕНО
                 return true;
             }
         }
 
-        // Ищем пустой слот
+        // Поиск пустого слота
         for (int i = 0; i < slots.Length; i++)
         {
-            if (slots[i] != null && slots[i].currentItem == null)
+            if (slots[i] == null)
+            {
+                Debug.LogWarning($"Слот {i} = null!");
+                continue;
+            }
+
+            if (slots[i].currentItem == null)
             {
                 slots[i].SetItem(item, amount);
+                Debug.Log($"Добавлено в пустой слот {i}");
+                SaveInventoryData(); // ДОБАВЛЕНО
                 return true;
             }
         }
 
-        Debug.Log($"Инвентарь полон! Не удалось добавить {item.itemName}");
+        Debug.Log("Инвентарь полон! Нет свободных слотов");
         return false;
     }
 
-    // Удалить предмет
+    // ИЗМЕНЁНО: добавлено сохранение
     public bool RemoveItem(Item item, int amount = 1)
     {
         for (int i = 0; i < slots.Length; i++)
@@ -128,13 +169,14 @@ public class Inventory : MonoBehaviour
                 {
                     slots[i].SetItem(item, slots[i].itemCount);
                 }
+                SaveInventoryData(); // ДОБАВЛЕНО
                 return true;
             }
         }
         return false;
     }
 
-    // Проверить, есть ли предмет в инвентаре
+    // ОСТАЛЬНЫЕ МЕТОДЫ (без изменений)
     public bool HasItem(Item item)
     {
         for (int i = 0; i < slots.Length; i++)
@@ -145,7 +187,6 @@ public class Inventory : MonoBehaviour
         return false;
     }
 
-    // Получить количество предметов
     public int GetItemCount(Item item)
     {
         int total = 0;
@@ -157,7 +198,6 @@ public class Inventory : MonoBehaviour
         return total;
     }
 
-    // Быстрое использование (ПКМ)
     public void QuickUseItem(Item item, InventorySlot slot)
     {
         if (item.isConsumable)
@@ -166,27 +206,22 @@ public class Inventory : MonoBehaviour
         }
         else
         {
-            // Если не расходуемый - показываем описание
             if (actions != null)
                 actions.ShowItemDescription(item);
         }
     }
 
-    // Использовать предмет на игроке (лечение, бафф)
     public void UseItemOnPlayer(Item item, InventorySlot slot)
     {
         Debug.Log($"Использован предмет на игроке: {item.itemName}");
 
-        // Здесь добавьте логику лечения/баффа
-        // Например: PlayerHealth.Heal(20);
-
         if (item.isConsumable)
         {
             slot.DecreaseCount();
+            SaveInventoryData(); // ДОБАВЛЕНО
         }
     }
 
-    // Использовать предмет на объекте в мире
     public bool UseItemOnObject(Item item, InventorySlot slot, GameObject target)
     {
         IUsable usable = target.GetComponent<IUsable>();
@@ -196,6 +231,7 @@ public class Inventory : MonoBehaviour
             if (success && item.isConsumable)
             {
                 slot.DecreaseCount();
+                SaveInventoryData(); // ДОБАВЛЕНО
             }
             return success;
         }
@@ -204,19 +240,16 @@ public class Inventory : MonoBehaviour
         return false;
     }
 
-    // Объединить предметы
     public void CombineItems(Item itemA, InventorySlot slotA, Item itemB, InventorySlot slotB)
     {
         if (itemA == null || itemB == null) return;
 
-        // Проверяем объединение A + B
         if (itemA.canCombine && itemA.combineResult != null && itemA.combineResult == itemB)
         {
             PerformCombine(slotA, slotB, itemA.combineResult);
             return;
         }
 
-        // Проверяем объединение B + A
         if (itemB.canCombine && itemB.combineResult != null && itemB.combineResult == itemA)
         {
             PerformCombine(slotB, slotA, itemB.combineResult);
@@ -234,7 +267,6 @@ public class Inventory : MonoBehaviour
         AddItem(result, 1);
     }
 
-    // Сбросить подсветку всех слотов
     public void ResetSlotHighlights()
     {
         foreach (var slot in slots)
@@ -244,61 +276,14 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    // Получить все предметы (для сохранения)
-    public InventorySaveData GetSaveData()
+    // ДОБАВЛЕНО: очистка инвентаря
+    public void ClearInventory()
     {
-        InventorySaveData data = new InventorySaveData();
-        data.items = new ItemSaveData[inventorySize];
-
-        for (int i = 0; i < slots.Length; i++)
-        {
-            if (slots[i] != null && slots[i].currentItem != null)
-            {
-                data.items[i] = new ItemSaveData
-                {
-                    itemName = slots[i].currentItem.name,
-                    count = slots[i].itemCount
-                };
-            }
-        }
-        return data;
-    }
-
-    // Загрузить инвентарь (для сохранения)
-    public void LoadSaveData(InventorySaveData data)
-    {
-        // Очищаем инвентарь
         foreach (var slot in slots)
         {
             if (slot != null)
                 slot.ClearSlot();
         }
-
-        // Загружаем предметы
-        for (int i = 0; i < data.items.Length && i < slots.Length; i++)
-        {
-            if (data.items[i] != null && !string.IsNullOrEmpty(data.items[i].itemName))
-            {
-                Item item = Resources.Load<Item>($"Items/{data.items[i].itemName}");
-                if (item != null)
-                {
-                    slots[i].SetItem(item, data.items[i].count);
-                }
-            }
-        }
+        SaveInventoryData();
     }
-}
-
-// Классы для сохранения
-[System.Serializable]
-public class InventorySaveData
-{
-    public ItemSaveData[] items;
-}
-
-[System.Serializable]
-public class ItemSaveData
-{
-    public string itemName;
-    public int count;
 }

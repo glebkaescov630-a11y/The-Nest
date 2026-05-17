@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class ClickToMove : MonoBehaviour
 {
+    public static bool canMove = true;  // ДОБАВЛЕНО: статическая переменная для блокировки движения
+
     [SerializeField] private float speed = 5f;
     [SerializeField] private float stoppingDistance = 0.1f;
 
@@ -10,6 +12,9 @@ public class ClickToMove : MonoBehaviour
 
     void Update()
     {
+        // ДОБАВЛЕНО: если движение заблокировано - ничего не делаем
+        if (!canMove) return;
+
         // Проверяем нажатие левой кнопки мыши
         if (Input.GetMouseButtonDown(0))
         {
