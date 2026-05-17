@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7a65d30edf79a04ea5a4ef0eb699447, type: 3}
-  m_Name: Hour
+  m_Name: Minutes
   m_EditorClassIdentifier: Assembly-CSharp::Item
-  itemName: "\u0427\u0430\u0441. \u0441\u0442\u0440\u0435\u043B\u043A\u0430"
-  icon: {fileID: -58387050313704126, guid: be88d466f628c92499b1a43fbbe02a0b, type: 3}
+  itemName: Minutes
+  icon: {fileID: -8006104272360738615, guid: 50e1bc0db5ed58d4dae82faaec53d3d7, type: 3}
   itemType: 0
   description: 
   canCombine: 1
-  combineResult: {fileID: 11400000, guid: e48eb940596ee904baf456a0d793092e, type: 2}
+  combineResult: {fileID: 11400000, guid: 34ddbbd69a369f9498007f1a98d7f9d5, type: 2}
   isConsumable: 0
   targetTag: 

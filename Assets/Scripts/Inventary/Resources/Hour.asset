@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7a65d30edf79a04ea5a4ef0eb699447, type: 3}
-  m_Name: WatchCover
+  m_Name: Hour
   m_EditorClassIdentifier: Assembly-CSharp::Item
-  itemName: "\u041E\u0431\u043B\u043E\u0436\u043A\u0430"
-  icon: {fileID: 1837567248687160956, guid: 2ccf0bc883d44594dbdf5e28d57db640, type: 3}
+  itemName: Hour
+  icon: {fileID: -58387050313704126, guid: be88d466f628c92499b1a43fbbe02a0b, type: 3}
   itemType: 0
   description: 
   canCombine: 1
-  combineResult: {fileID: 11400000, guid: a5143e790226892408adf3e33de73948, type: 2}
+  combineResult: {fileID: 11400000, guid: 7c22e267910e9b34bbdc878b751f9de6, type: 2}
   isConsumable: 0
   targetTag: 

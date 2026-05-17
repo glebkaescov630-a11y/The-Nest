@@ -7,6 +7,10 @@ public class UseModeManager : MonoBehaviour
     public enum GameMode { Normal, UseMode }
     public GameMode currentMode = GameMode.Normal;
 
+    public bool pickedClockHand1 = false; 
+    public bool pickedClockHand2 = false; 
+    public bool pickedEmptyClock = false;  
+
     private Item selectedItem;
     private InventorySlot selectedSlot;
     private Inventory inventory;
@@ -35,7 +39,6 @@ public class UseModeManager : MonoBehaviour
         selectedSlot = slot;
         currentMode = GameMode.UseMode;
 
-        // Меняем курсор (опционально)
         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
         Debug.Log($"Кликните на объект, чтобы использовать {selectedItem.itemName}");
     }
@@ -52,7 +55,6 @@ public class UseModeManager : MonoBehaviour
             return;
         }
 
-        // Проверяем, можно ли использовать предмет на цели
         IUsable usable = target.GetComponent<IUsable>();
         if (usable != null)
         {
@@ -82,13 +84,11 @@ public class UseModeManager : MonoBehaviour
         selectedItem = null;
         selectedSlot = null;
 
-        // Возвращаем обычный курсор
         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }
 
     void Update()
     {
-        // Клик по объекту в режиме использования
         if (currentMode == GameMode.UseMode && Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -100,7 +100,6 @@ public class UseModeManager : MonoBehaviour
             }
             else
             {
-                // Клик в пустоту - отмена
                 Debug.Log("Режим использования отменён");
                 ExitUseMode();
             }

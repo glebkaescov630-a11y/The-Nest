@@ -5,8 +5,11 @@ public class InventoryPersistence : MonoBehaviour
 {
     public static InventoryPersistence Instance;
 
-    // Статический список для хранения предметов (сохраняется даже между сценами)
+    // Статический список для хранения предметов между сценами
     public static List<SavedItem> savedItems = new List<SavedItem>();
+
+    // Флаг, который запретит инвентарю перезаписывать сейв во время загрузки
+    public bool IsLoading { get; private set; } = false;
 
     [System.Serializable]
     public class SavedItem
@@ -31,6 +34,9 @@ public class InventoryPersistence : MonoBehaviour
 
     public void SaveInventory(InventorySlot[] slots)
     {
+        // Если прямо сейчас идет загрузка, игнорируем попытки инвентаря сохраниться поверх
+        if (IsLoading) return;
+
         savedItems.Clear();
 
         foreach (var slot in slots)
@@ -52,15 +58,20 @@ public class InventoryPersistence : MonoBehaviour
     {
         if (savedItems.Count == 0)
         {
-            Debug.Log("Нет сохранённых предметов");
+            Debug.Log("Нет сохранённых предметов для загрузки.");
             return;
         }
 
+        // Включаем защиту: сейчас идет загрузка!
+        IsLoading = true;
         Debug.Log($"Загружаем {savedItems.Count} предметов...");
 
-        foreach (var savedItem in savedItems)
+        // Создаем временную копию списка, чтобы избежать багов чтения/записи
+        List<SavedItem> itemsToLoad = new List<SavedItem>(savedItems);
+
+        foreach (var savedItem in itemsToLoad)
         {
-            // Ищем предмет по имени среди всех Item
+            // Ищем предмет по имени среди всех Item в папке Resources
             Item[] allItems = Resources.LoadAll<Item>("");
             Item foundItem = null;
 
@@ -80,8 +91,14 @@ public class InventoryPersistence : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"Предмет не найден: {savedItem.itemName}");
+                Debug.LogWarning($"Предмет с внутренним Item Name '{savedItem.itemName}' не найден в папке Resources!");
             }
         }
+
+        // Загрузка полностью завершена, снимаем блокировку сохранения
+        IsLoading = false;
+        Debug.Log("Восстановление инвентаря успешно завершено!");
     }
 }
+
+

@@ -18,19 +18,16 @@ public class Inventory : MonoBehaviour
     private InventorySlot[] slots;
     public System.Action OnInventoryClosed;
 
-    // ДОБАВЛЕНО: для сохранения
     private InventoryPersistence persistence;
     private bool isLoading = false;
 
     void Start()
     {
-        // ДОБАВЛЕНО: находим менеджер сохранения
         persistence = InventoryPersistence.Instance;
 
         if (actions == null)
             actions = GetComponent<InventoryActions>();
 
-        // Создаём ячейки
         slots = new InventorySlot[inventorySize];
         if (slotsParent != null && slotPrefab != null)
         {
@@ -51,11 +48,9 @@ public class Inventory : MonoBehaviour
         if (inventoryWindow != null)
             inventoryWindow.SetActive(false);
 
-        // ДОБАВЛЕНО: загружаем сохранённые предметы
         LoadInventoryFromSave();
     }
 
-    // ДОБАВЛЕНО: загрузка инвентаря из сохранения
     private void LoadInventoryFromSave()
     {
         if (persistence != null)
@@ -64,7 +59,6 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    // ДОБАВЛЕНО: сохранение инвентаря
     private void SaveInventoryData()
     {
         if (persistence != null && !isLoading)
@@ -95,7 +89,6 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    // ИЗМЕНЁНО: добавлено сохранение
     public bool AddItem(Item item, int amount = 1)
     {
         if (item == null)
@@ -112,7 +105,6 @@ public class Inventory : MonoBehaviour
             return false;
         }
 
-        // Поиск существующего стака
         for (int i = 0; i < slots.Length; i++)
         {
             if (slots[i] == null)
@@ -131,7 +123,6 @@ public class Inventory : MonoBehaviour
             }
         }
 
-        // Поиск пустого слота
         for (int i = 0; i < slots.Length; i++)
         {
             if (slots[i] == null)
@@ -144,7 +135,7 @@ public class Inventory : MonoBehaviour
             {
                 slots[i].SetItem(item, amount);
                 Debug.Log($"Добавлено в пустой слот {i}");
-                SaveInventoryData(); // ДОБАВЛЕНО
+                SaveInventoryData(); 
                 return true;
             }
         }
@@ -153,7 +144,6 @@ public class Inventory : MonoBehaviour
         return false;
     }
 
-    // ИЗМЕНЁНО: добавлено сохранение
     public bool RemoveItem(Item item, int amount = 1)
     {
         for (int i = 0; i < slots.Length; i++)
@@ -169,14 +159,13 @@ public class Inventory : MonoBehaviour
                 {
                     slots[i].SetItem(item, slots[i].itemCount);
                 }
-                SaveInventoryData(); // ДОБАВЛЕНО
+                SaveInventoryData(); 
                 return true;
             }
         }
         return false;
     }
 
-    // ОСТАЛЬНЫЕ МЕТОДЫ (без изменений)
     public bool HasItem(Item item)
     {
         for (int i = 0; i < slots.Length; i++)
@@ -218,7 +207,7 @@ public class Inventory : MonoBehaviour
         if (item.isConsumable)
         {
             slot.DecreaseCount();
-            SaveInventoryData(); // ДОБАВЛЕНО
+            SaveInventoryData(); 
         }
     }
 
@@ -231,7 +220,7 @@ public class Inventory : MonoBehaviour
             if (success && item.isConsumable)
             {
                 slot.DecreaseCount();
-                SaveInventoryData(); // ДОБАВЛЕНО
+                SaveInventoryData(); 
             }
             return success;
         }
@@ -276,7 +265,6 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    // ДОБАВЛЕНО: очистка инвентаря
     public void ClearInventory()
     {
         foreach (var slot in slots)
