@@ -118,7 +118,7 @@ public class Inventory : MonoBehaviour
                 slots[i].itemCount += amount;
                 slots[i].SetItem(item, slots[i].itemCount);
                 Debug.Log($"Добавлено в слот {i}, теперь {slots[i].itemCount}");
-                SaveInventoryData(); // ДОБАВЛЕНО
+                SaveInventoryData();
                 return true;
             }
         }

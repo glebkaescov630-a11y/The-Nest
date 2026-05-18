@@ -22,8 +22,6 @@ public class InventoryActions : MonoBehaviour
     void Start()
     {
         inventory = GetComponent<Inventory>();
-
-        // Назначаем кнопкам их функции
         if (useButton != null)
             useButton.onClick.AddListener(OnUseClick);
 
@@ -33,15 +31,12 @@ public class InventoryActions : MonoBehaviour
         if (examineButton != null)
             examineButton.onClick.AddListener(OnExamineClick);
 
-        // Скрываем панель описания
         if (descriptionPanel != null)
             descriptionPanel.SetActive(false);
     }
 
-    // Вызывается из InventorySlot при клике по предмету
     public void SelectItem(Item item, InventorySlot slot)
     {
-        // Если мы в режиме объединения - пробуем объединить
         if (isCombineMode && selectedItem != null && selectedSlot != null)
         {
             TryCombine(selectedItem, selectedSlot, item, slot);
@@ -49,19 +44,16 @@ public class InventoryActions : MonoBehaviour
         }
         else if (isCombineMode && selectedItem == null)
         {
-            // Странный случай - отменяем режим
             CancelCombineMode();
         }
         else
         {
-            // Обычный выбор предмета
             SetSelectedItem(item, slot);
         }
     }
 
     private void SetSelectedItem(Item item, InventorySlot slot)
     {
-        // Снимаем подсветку с предыдущего выбранного слота
         if (selectedSlot != null)
             selectedSlot.Highlight(false);
 
@@ -92,11 +84,9 @@ public class InventoryActions : MonoBehaviour
 
         Debug.Log($"Режим использования: выберите цель для {selectedItem.itemName}");
 
-        // Отключаем режим объединения, если был включён
         if (isCombineMode)
             CancelCombineMode();
 
-        // Оповещаем GameManager о входе в режим использования
         UseModeManager.Instance?.EnterUseMode(selectedItem, selectedSlot);
     }
 
@@ -136,7 +126,6 @@ public class InventoryActions : MonoBehaviour
             descriptionText.text = item.description;
             descriptionPanel.SetActive(true);
 
-            // Автоматически скрыть через 3 секунды
             Invoke(nameof(HideDescription), 3f);
         }
         else
@@ -161,7 +150,6 @@ public class InventoryActions : MonoBehaviour
     {
         CancelCombineMode();
 
-        // Снимаем подсветку
         if (selectedSlot != null)
         {
             selectedSlot.Highlight(false);

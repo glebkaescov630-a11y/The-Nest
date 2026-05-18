@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ClickToMove : MonoBehaviour
 {
-    public static bool canMove = true;  // ДОБАВЛЕНО: статическая переменная для блокировки движения
+    public static bool canMove = true;
 
     [SerializeField] private float speed = 5f;
     [SerializeField] private float stoppingDistance = 0.1f;
@@ -12,16 +12,12 @@ public class ClickToMove : MonoBehaviour
 
     void Update()
     {
-        // ДОБАВЛЕНО: если движение заблокировано - ничего не делаем
         if (!canMove) return;
 
-        // Проверяем нажатие левой кнопки мыши
         if (Input.GetMouseButtonDown(0))
         {
-            // Преобразуем экранные координаты мыши в мировые (для 2D)
             Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-            // Пускаем луч в 2D пространстве
             RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
 
             if (hit.collider != null && hit.collider.gameObject.CompareTag("Ground"))
@@ -31,13 +27,10 @@ public class ClickToMove : MonoBehaviour
             }
         }
 
-        // Движение к цели
         if (hasTarget)
         {
-            // Перемещаем персонажа
             transform.position = Vector2.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
 
-            // Если дошли до цели - останавливаемся
             if (Vector2.Distance(transform.position, targetPosition) < stoppingDistance)
             {
                 hasTarget = false;
