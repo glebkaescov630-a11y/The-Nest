@@ -1,10 +1,21 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; 
+using UnityEngine.SceneManagement;
 
 public class MenuController : MonoBehaviour
 {
     public void StartGame()
     {
-        SceneManager.LoadScene("SampleScene");
+        SceneManager.LoadScene("Intro");
     }
 }
+
+//using UnityEngine;
+//using UnityEngine.SceneManagement; 
+
+//public class MenuController : MonoBehaviour
+//{
+//    public void StartGame()
+//    {
+//        SceneManager.LoadScene("SampleScene");
+//    }
+//}
