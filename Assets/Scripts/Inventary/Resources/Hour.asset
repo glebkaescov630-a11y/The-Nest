@@ -17,6 +17,6 @@ MonoBehaviour:
   itemType: 0
   description: 
   canCombine: 1
-  combineResult: {fileID: 11400000, guid: 7c22e267910e9b34bbdc878b751f9de6, type: 2}
+  combineResult: {fileID: 11400000, guid: e48eb940596ee904baf456a0d793092e, type: 2}
   isConsumable: 0
   targetTag: 

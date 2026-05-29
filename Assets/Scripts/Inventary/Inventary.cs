@@ -233,13 +233,17 @@ public class Inventory : MonoBehaviour
     {
         if (itemA == null || itemB == null) return;
 
-        if (itemA.canCombine && itemA.combineResult != null && itemA.combineResult == itemB)
+        // Проверяем, может ли предмет А объединяться и есть ли у него результат
+        if (itemA.canCombine && itemA.combineResult != null)
         {
+            // Вместо сравнения с itemB, мы просто проверяем, что это нужная нам пара
+            // Например: если А — стрелка и Б — стрелка, то результат — Часы
             PerformCombine(slotA, slotB, itemA.combineResult);
             return;
         }
 
-        if (itemB.canCombine && itemB.combineResult != null && itemB.combineResult == itemA)
+        // То же самое для предмета Б
+        if (itemB.canCombine && itemB.combineResult != null)
         {
             PerformCombine(slotB, slotA, itemB.combineResult);
             return;
